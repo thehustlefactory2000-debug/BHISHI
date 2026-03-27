@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f6efe3;
+  --surface: rgba(255, 252, 247, 0.9);
+  --muted: #efe4d2;
+  --border: rgba(127, 92, 47, 0.16);
+  --text: #221814;
+  --subtle: #6c5b4d;
+  --primary: #b45309;
+  --success: #15803d;
+  --warning: #d97706;
+  --danger: #dc2626;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #100d0b;
+  --surface: rgba(25, 21, 18, 0.9);
+  --muted: #231d18;
+  --border: rgba(255, 243, 224, 0.09);
+  --text: #f7efe6;
+  --subtle: #c7b39f;
+  --primary: #fb923c;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(251, 146, 60, 0.14), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.08), transparent 24%),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+body[data-modal-open="true"] {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+body[data-modal-open="true"] #root {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body[data-modal-open="true"] .app-shell-header,
+body[data-modal-open="true"] .app-shell-main,
+body[data-modal-open="true"] .app-shell-mobile-nav {
+  pointer-events: none;
+  user-select: none;
+}
+
+body[data-modal-open="true"] .app-shell-header,
+body[data-modal-open="true"] .app-shell-mobile-nav {
+  filter: saturate(0.9) blur(1px);
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+@layer components {
+  .bg-app {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 20%),
+      var(--bg);
+  }
+
+  .card {
+    @apply rounded-[24px] border border-border bg-surface shadow-lg shadow-slate-950/5 backdrop-blur sm:rounded-[30px];
+  }
+
+  .soft-panel {
+    @apply rounded-[18px] border border-border bg-muted sm:rounded-[24px];
+  }
+
+  .input {
+    @apply min-h-[48px] w-full rounded-2xl border border-border bg-transparent px-4 py-3 text-sm text-text outline-none transition placeholder:text-subtle focus:border-primary focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900;
+  }
+
+  .label {
+    @apply mb-2 block text-sm font-medium text-text;
+  }
+
+  .btn {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white shadow-lg shadow-orange-600/20 hover:opacity-95;
+  }
+
+  .btn-secondary {
+    @apply btn border border-border bg-surface text-text hover:bg-muted;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-white;
+  }
+
+  .icon-btn {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-border bg-surface text-text transition hover:bg-muted;
+  }
+
+  .mobile-nav {
+    @apply flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2 text-xs text-subtle transition [&.active]:bg-muted [&.active]:text-primary;
+  }
+
+  .badge-muted {
+    @apply rounded-full bg-muted px-3 py-1;
+  }
+
+  .mobile-scroll {
+    @apply -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply px-3 py-2 text-left text-subtle;
+  }
+
+  .data-table td {
+    @apply px-3 py-3 align-top;
+  }
+}
+
+
+
+

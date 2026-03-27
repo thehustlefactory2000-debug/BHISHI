@@ -1,0 +1,163 @@
+export const translations = {
+  en: {
+    // Profile Page
+    profile: "Profile",
+    profileSubtitle: "Manage your account settings.",
+    appearance: "Appearance",
+    theme: "Theme",
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeSystem: "System",
+    language: "Language",
+    account: "Account",
+    currentPassword: "Current password",
+    newPassword: "New password",
+    confirmNewPassword: "Confirm new password",
+    updatePassword: "Update password",
+    logout: "Logout",
+    dangerZone: "Danger zone",
+    dangerDescription: "Permanently deletes your account, all groups, and local data. Type",
+    dangerDescriptionEnd: "to confirm.",
+    deleteAccount: "Delete",
+    deleteAccountPlaceholder: 'Type "DELETE"',
+    passwordMin: "New password must be at least 8 characters.",
+    passwordMismatch: "Passwords do not match.",
+    passwordIncorrect: "Current password is incorrect.",
+    passwordUpdated: "Password updated.",
+
+    // App Shell / Nav
+    dashboard: "Dashboard",
+    groups: "Groups",
+    createGroup: "Create Group",
+    back: "Back",
+
+    // Dashboard
+    myGroups: "My Groups",
+    totalGroups: "Total Groups",
+    activeGroups: "Active Groups",
+    completedGroups: "Completed Groups",
+    noGroups: "No groups yet",
+    noGroupsSubtitle: "Create your first group to get started.",
+    createFirstGroup: "Create your first group",
+
+    // Group
+    members: "Members",
+    monthlyAmount: "Monthly Amount",
+    interestRate: "Interest Rate",
+    startDate: "Start Date",
+    payoutDay: "Payout Day",
+    groupName: "Group name",
+    totalMembers: "Total members",
+    interestRatePercent: "Interest rate %",
+    payoutDate: "Payout day",
+  },
+
+  mr: {
+    // Profile Page
+    profile: "प्रोफाइल",
+    profileSubtitle: "तुमची खाते सेटिंग्ज व्यवस्थापित करा.",
+    appearance: "दिसावट",
+    theme: "थीम",
+    themeLight: "प्रकाश",
+    themeDark: "गडद",
+    themeSystem: "सिस्टम",
+    language: "भाषा",
+    account: "खाते",
+    currentPassword: "सध्याचा पासवर्ड",
+    newPassword: "नवीन पासवर्ड",
+    confirmNewPassword: "नवीन पासवर्ड पुष्टी करा",
+    updatePassword: "पासवर्ड अपडेट करा",
+    logout: "लॉग आउट",
+    dangerZone: "धोकादायक क्षेत्र",
+    dangerDescription: "तुमचे खाते, सर्व गट आणि स्थानिक डेटा कायमचे हटवते. पुष्टी करण्यासाठी",
+    dangerDescriptionEnd: "टाइप करा.",
+    deleteAccount: "हटवा",
+    deleteAccountPlaceholder: '"DELETE" टाइप करा',
+    passwordMin: "नवीन पासवर्ड किमान 8 अक्षरांचा असावा.",
+    passwordMismatch: "पासवर्ड जुळत नाहीत.",
+    passwordIncorrect: "सध्याचा पासवर्ड चुकीचा आहे.",
+    passwordUpdated: "पासवर्ड अपडेट झाला.",
+
+    // App Shell / Nav
+    dashboard: "डॅशबोर्ड",
+    groups: "गट",
+    createGroup: "गट तयार करा",
+    back: "मागे",
+
+    // Dashboard
+    myGroups: "माझे गट",
+    totalGroups: "एकूण गट",
+    activeGroups: "सक्रिय गट",
+    completedGroups: "पूर्ण झालेले गट",
+    noGroups: "अजून कोणतेही गट नाहीत",
+    noGroupsSubtitle: "सुरुवात करण्यासाठी पहिला गट तयार करा.",
+    createFirstGroup: "पहिला गट तयार करा",
+
+    // Group
+    members: "सदस्य",
+    monthlyAmount: "मासिक रक्कम",
+    interestRate: "व्याज दर",
+    startDate: "सुरुवातीची तारीख",
+    payoutDay: "पेआउट दिवस",
+    groupName: "गटाचे नाव",
+    totalMembers: "एकूण सदस्य",
+    interestRatePercent: "व्याज दर %",
+    payoutDate: "पेआउट दिवस",
+  },
+
+  hi: {
+    // Profile Page
+    profile: "प्रोफ़ाइल",
+    profileSubtitle: "अपनी खाता सेटिंग्स प्रबंधित करें।",
+    appearance: "दिखावट",
+    theme: "थीम",
+    themeLight: "लाइट",
+    themeDark: "डार्क",
+    themeSystem: "सिस्टम",
+    language: "भाषा",
+    account: "खाता",
+    currentPassword: "वर्तमान पासवर्ड",
+    newPassword: "नया पासवर्ड",
+    confirmNewPassword: "नया पासवर्ड पुष्टि करें",
+    updatePassword: "पासवर्ड अपडेट करें",
+    logout: "लॉग आउट",
+    dangerZone: "खतरनाक क्षेत्र",
+    dangerDescription: "आपका खाता, सभी समूह और स्थानीय डेटा स्थायी रूप से हटा देता है। पुष्टि करने के लिए",
+    dangerDescriptionEnd: "टाइप करें।",
+    deleteAccount: "हटाएं",
+    deleteAccountPlaceholder: '"DELETE" टाइप करें',
+    passwordMin: "नया पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
+    passwordMismatch: "पासवर्ड मेल नहीं खाते।",
+    passwordIncorrect: "वर्तमान पासवर्ड गलत है।",
+    passwordUpdated: "पासवर्ड अपडेट हो गया।",
+
+    // App Shell / Nav
+    dashboard: "डैशबोर्ड",
+    groups: "समूह",
+    createGroup: "समूह बनाएं",
+    back: "वापस",
+
+    // Dashboard
+    myGroups: "मेरे समूह",
+    totalGroups: "कुल समूह",
+    activeGroups: "सक्रिय समूह",
+    completedGroups: "पूर्ण समूह",
+    noGroups: "अभी कोई समूह नहीं",
+    noGroupsSubtitle: "शुरू करने के लिए पहला समूह बनाएं।",
+    createFirstGroup: "पहला समूह बनाएं",
+
+    // Group
+    members: "सदस्य",
+    monthlyAmount: "मासिक राशि",
+    interestRate: "ब्याज दर",
+    startDate: "शुरुआत की तारीख",
+    payoutDay: "भुगतान दिवस",
+    groupName: "समूह का नाम",
+    totalMembers: "कुल सदस्य",
+    interestRatePercent: "ब्याज दर %",
+    payoutDate: "भुगतान दिवस",
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.en;
+export type SupportedLanguage = keyof typeof translations;

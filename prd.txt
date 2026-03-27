@@ -1,0 +1,463 @@
+Here is the complete, production-grade PRD for the Bhishi Admin PWA — written as a Codex-ready prompt with full UI, logic, validation, and flow specifications.---
+
+Here is the full PRD written as a Codex-ready prompt:
+
+---
+
+# Bhishi Admin PWA — Full PRD & Codex Prompt
+
+## Project Overview
+
+Build a **Progressive Web App (PWA)** called **Bhishi Admin** using **React** (Vite or CRA), **TypeScript**, **Tailwind CSS**, and **localStorage** (or Supabase if backend is needed). The app is admin-only — no member-facing UI. It manages rotating savings groups (called "Bhishi" in Marathi/Hindi culture), tracks monthly payments, calculates interest-adjusted amounts, selects winners, and locks completed months permanently.
+
+---
+
+## Tech Stack
+
+- React 18 + TypeScript
+- Tailwind CSS + shadcn/ui
+- React Router v6 (client-side routing)
+- Zustand or Context API for global state
+- localStorage or Supabase for persistence
+- PWA: `vite-plugin-pwa` with offline support, manifest, service worker
+- i18n: `react-i18next` (English, Marathi, Hindi minimum)
+- Theming: CSS variables, light/dark/system modes
+
+---
+
+## Data Models
+
+```typescript
+// Admin account
+interface Admin {
+  id: string;
+  email: string;
+  passwordHash: string;
+  createdAt: string;
+}
+
+// Group
+interface BhishiGroup {
+  id: string;
+  name: string;
+  monthlyAmount: number;       // A
+  totalMembers: number;        // N
+  interestRate: number;        // r (e.g. 0.01 = 1%)
+  startDate: string;           // ISO date
+  payoutDate: number;          // day of month (1–28)
+  members: Member[];
+  months: MonthRecord[];
+  createdAt: string;
+  isCompleted: boolean;
+}
+
+// Member
+interface Member {
+  id: string;
+  name: string;
+  phone: string;
+  hasWon: boolean;
+  payoutMonth?: number;        // which month they won
+}
+
+// Monthly record
+interface MonthRecord {
+  monthNumber: number;         // 1-indexed
+  expectedAmount: number;      // calculated via formula
+  payments: Payment[];
+  winnerId?: string;
+  isLocked: boolean;
+  lockedAt?: string;
+}
+
+// Payment per member per month
+interface Payment {
+  memberId: string;
+  paid: boolean;
+  paidDate?: string;           // ISO date
+  paymentMode?: 'online' | 'offline';
+  paidAmount?: number;
+}
+```
+
+---
+
+## Payment Formula
+
+```
+P(m) = A × (1 − r × (N − m))
+```
+
+- `A` = base monthly amount
+- `r` = interest rate (entered by admin when creating group, e.g. 0.01)
+- `N` = total months (= total members)
+- `m` = current month number (1-indexed)
+- **Month 1**: always full amount `A` (no deduction)
+- **Month N** (last): always full amount `A` (no deduction)
+- **Months 2 through N−1**: apply formula above
+
+**Example** (A=500, N=12, r=0.01):
+| Month | Formula | Payment |
+|-------|---------|---------|
+| 1 | full | ₹500 |
+| 2 | 500×(1−0.01×10) | ₹450 |
+| 3 | 500×(1−0.01×9) | ₹455 |
+| 11 | 500×(1−0.01×1) | ₹495 |
+| 12 | full | ₹500 |
+
+Implement `calculatePayment(A, r, N, m)` as a pure utility function used everywhere.
+
+---
+
+## Pages & Flows
+
+### 1. Login Page — `/login`
+
+**Layout**: Centered card, logo at top, full-page background with subtle pattern.
+
+**Fields**:
+- Email input (type=email, required, validate format)
+- Password input (type=password, required, min 8 chars)
+- "Forgot password?" link → `/forgot-password`
+- "Sign in" primary button
+
+**Behavior**:
+- Show inline field-level errors on blur
+- Show toast on wrong credentials: "Invalid email or password"
+- On success: redirect to `/dashboard`
+- Session persists via localStorage token until logout
+- No registration screen — admin account is pre-seeded or created via a one-time setup route `/setup` (if no admin exists)
+
+**Validations**:
+- Email: required, valid format
+- Password: required, min 8 characters
+
+---
+
+### 2. Forgot Password — `/forgot-password`
+
+**Fields**: Email input + "Send reset link" button.  
+Show success message: "If this email exists, a reset link has been sent."  
+Back link to login.
+
+---
+
+### 3. Dashboard — `/dashboard`
+
+**Layout**: Top app bar with logo, profile avatar (top-right), bottom nav or sidebar.
+
+**Content**:
+- Page title: "My Bhishi Groups"
+- Stats row at top: Total Groups · Active Groups · Completed Groups (3 cards)
+- Group cards grid (2-col on tablet, 1-col on mobile):
+  - Group name (bold)
+  - Monthly amount badge
+  - Member count
+  - Progress bar: months completed / total months
+  - Status badge: Active / Completed
+  - Start date
+- Empty state with illustration + "Create your first group" CTA
+- **Floating Action Button** (FAB): `+` circle button, bottom-right, fixed position, navigates to `/groups/create`
+
+**Behavior**:
+- Tap any group card → navigate to `/groups/:id`
+- Groups sorted by: Active first, then by start date descending
+
+---
+
+### 4. Create Group — `/groups/create`
+
+**Layout**: Full-page form with back arrow in app bar.
+
+**Section 1 — Group details**:
+- Group Name (text, required, max 50 chars)
+- Monthly Amount ₹ (number, required, min ₹1)
+- Total Members (number, required, min 2, max 50)
+- Interest Rate % (number, required, min 0, max 10, step 0.1 — this is `r` as a percentage, store as decimal r/100)
+- Start Date (date picker, required, must be today or future)
+- Payout Date (number 1–28, required — day of month payments are due)
+
+**Section 2 — Members** (dynamic list):
+- "Add Member" button adds a row
+- Each row: Member Name (text, required) + Phone Number (tel, required, 10-digit Indian format)
+- Remove button per row
+- Auto-add rows until count matches Total Members
+- Validate: exactly N members must be added before submit
+- Members list shows numbered: Member 1, Member 2, etc.
+
+**Section 3 — Preview**:
+- Payment schedule table auto-calculated: Month · Due Date · Expected Amount
+- Show formula note: "Interest rate applied to mid months only"
+
+**Button**: "Create Group" (primary, full-width, disabled until all valid)
+
+**Validations**:
+- All fields required
+- Phone: exactly 10 digits, numeric only
+- Member count must match Total Members field exactly
+- No duplicate phone numbers
+- Monthly Amount must be > 0
+- Interest rate 0–10%
+
+**On submit**:
+- Create group with all months pre-populated (isLocked: false, payments: [] for each member)
+- Navigate to `/groups/:id`
+- Show success toast: "Group created successfully"
+
+---
+
+### 5. Group Detail — `/groups/:id`
+
+**Layout**: App bar with group name + back arrow. Edit (pencil icon) and Delete (trash icon) in top-right app bar.
+
+**Header section**:
+- Group name (h1)
+- Stat pills: ₹{amount}/month · {N} members · Started {date} · Payout on {day}th
+- Overall progress bar
+
+**Tab bar** (sticky below header):
+- "Months" tab (default)
+- "Members" tab
+- "Summary" tab
+
+---
+
+#### Tab: Months
+
+Shows a vertical list of month cards.
+
+Each **month card** contains:
+- Month number + date range
+- Status badge: Pending / In Progress / Completed / Locked 🔒
+- Progress: X of N members paid
+- Expected amount for this month (formula output)
+- "View details" → expands inline or navigates to month detail
+
+**Expanded month card**:
+- Member payment table:
+  | Member | Amount Due | Status | Date Paid | Mode | Action |
+  |--------|-----------|--------|-----------|------|--------|
+  - Status: Paid ✓ (green) or Unpaid (gray)
+  - Date Paid: date picker (shown only if paid)
+  - Mode: Online / Offline chip selector (shown only if paid)
+  - Action: "Mark paid" button OR "Edit" if already paid (only if month not locked)
+- **"Mark all paid"** button (top-right of table): sets all unpaid members to paid with today's date + prompts for mode; shows confirmation dialog "Mark all X members as paid for Month Y?"
+- **Winner section** (shown if no winner yet for this month):
+  - Disabled with tooltip "All members must pay first" if any unpaid
+  - If all paid: "Select winner" button opens winner modal
+- **Winner display** (if winner selected): "Winner: {name} — {phone}" badge in amber
+- **Lock month** button (shown after winner selected, month not locked): "Lock Month Y — this cannot be undone" → confirmation dialog → locks
+- Locked month: all inputs disabled, "🔒 Locked on {date}" banner
+
+---
+
+#### Tab: Members
+
+List of all members:
+- Name, phone, win status badge (Won Month X / Eligible)
+- Total paid so far vs total expected
+- Payment history expandable per member
+
+---
+
+#### Tab: Summary
+
+- Full payment matrix: rows = members, columns = months, cells = ✓/✗
+- Total collected amount
+- Total expected amount
+- Interest earned summary
+- "Export as PDF / CSV" button (generate and download)
+
+---
+
+#### Edit Group (pencil icon)
+
+Opens edit form (same as create but pre-filled). Restrictions:
+- Cannot change Total Members or Monthly Amount after any payment has been made
+- Cannot change Interest Rate after Month 1 is locked
+- Can always edit Group Name, Payout Date
+
+#### Delete Group (trash icon)
+
+Shows confirmation dialog: "Delete '{group name}'? This will permanently remove all data. This cannot be undone."  
+Type group name to confirm → Delete button activates.
+
+---
+
+### 6. Winner Selection Modal
+
+Triggered from month card after all members paid.
+
+**Step 1**: Shows list of eligible members (those who have `hasWon: false`) as selectable cards with name and phone.
+
+**Step 2**: Admin taps a member → confirmation: "Confirm {name} as winner for Month {m}? They will receive the payout."
+
+**Step 3**: On confirm:
+- Set `member.hasWon = true`, `member.payoutMonth = m`
+- Set `monthRecord.winnerId = memberId`
+- Show payout summary: "Payout amount: ₹{totalCollected for this month}" (sum of all members' actual payments for that month)
+- Lock month automatically or show "Lock Month" button
+
+**Guards**:
+- Block if any payment is unpaid → show error: "All members must pay before selecting a winner"
+- Block if member already won → member not shown in list
+- Block if month is already locked → modal not accessible
+
+---
+
+### 7. Profile — `/profile`
+
+**Sections**:
+
+**Appearance**:
+- Theme selector: Light / Dark / System (3-way toggle with icons)
+- Language selector: dropdown — English / मराठी (Marathi) / हिन्दी (Hindi)
+
+**Account**:
+- Display email (read-only)
+- Change Password (opens inline form: current password + new password + confirm)
+
+**Danger zone**:
+- "Delete Account" button (red, outlined): confirmation modal with two steps:
+  1. Warning: "All groups and data will be permanently deleted."
+  2. Type "DELETE" to confirm → red "Delete Account" button
+
+---
+
+## Business Logic Rules (Enforce Strictly)
+
+1. **Payment formula**: `calculatePayment(A, r, N, m)` — first and last month always return `A`, middle months use formula.
+2. **Cannot select winner if any payment is unpaid** for that month.
+3. **Each member can win at most once** across the entire group.
+4. **Locked months are fully immutable** — no field changes, no payment edits, no winner changes.
+5. **Auto-lock option**: after winner is selected, prompt admin to lock the month.
+6. **Cannot edit group financials** (amount, member count, rate) after payments begin.
+7. **Payout amount for winner** = sum of all actual payments made by members for that month.
+8. **Group completes** when all N months are locked.
+
+---
+
+## UI/UX Specifications
+
+**Color system**:
+- Primary: indigo-600 (light) / indigo-400 (dark)
+- Success: green-600 / green-400
+- Warning: amber-500 / amber-400
+- Danger: red-600 / red-400
+- Surface: white / gray-900
+- Muted: gray-100 / gray-800
+
+**Typography**:
+- Font: Inter or system-ui
+- H1: 24px/600, H2: 20px/600, H3: 16px/500, Body: 14px/400, Caption: 12px/400
+
+**Components** (use shadcn/ui):
+- Button (primary, secondary, destructive, ghost variants)
+- Input, Select, DatePicker
+- Card with header/content/footer
+- Badge (status variants)
+- Dialog/AlertDialog for confirmations
+- Toast (sonner or shadcn toast)
+- Progress bar
+- Tabs
+- Sheet (bottom sheet on mobile for forms)
+
+**Mobile-first layout**:
+- FAB always bottom-right on dashboard
+- Bottom navigation bar on mobile (Dashboard, Profile)
+- Sticky month tabs on group detail
+- Payment table scrolls horizontally on small screens
+
+**Loading states**: Skeleton loaders for group cards, payment tables.
+
+**Empty states**: Illustrated empty state on dashboard, members tab, months tab.
+
+**Error states**: Inline form errors, full-page error boundary with retry.
+
+---
+
+## PWA Requirements
+
+- `manifest.json`: name="Bhishi Admin", short_name="Bhishi", theme_color="#4F46E5", display="standalone", icons at 192×192 and 512×512
+- Service worker: cache shell + API responses, offline fallback page
+- Install prompt: custom "Add to home screen" banner after 3rd visit
+- `meta viewport` for safe-area insets (notch support)
+
+---
+
+## Internationalization (i18n)
+
+Use `react-i18next`. All UI strings must use translation keys. Provide translation files for:
+- `en.json` — English (default)
+- `mr.json` — Marathi
+- `hi.json` — Hindi
+
+Language stored in admin profile, applied on login. RTL not required.
+
+---
+
+## Validation Summary
+
+| Field | Rule |
+|-------|------|
+| Email | Required, valid format |
+| Password | Required, min 8 chars |
+| Group name | Required, max 50 chars |
+| Monthly amount | Required, > 0, numeric |
+| Total members | Required, 2–50, integer |
+| Interest rate | Required, 0–10, decimal |
+| Start date | Required, today or future |
+| Payout day | Required, 1–28 |
+| Member name | Required, max 100 chars |
+| Member phone | Required, exactly 10 digits |
+| Phone uniqueness | No duplicates within group |
+| Member count | Exactly matches Total Members |
+
+---
+
+## File Structure (Suggested)
+
+```
+src/
+  components/
+    ui/          # shadcn components
+    layout/      # AppBar, BottomNav, FAB, PageWrapper
+    groups/      # GroupCard, GroupForm, MonthCard, PaymentTable
+    members/     # MemberRow, WinnerModal
+    auth/        # LoginForm, ForgotPassword
+  pages/
+    LoginPage, DashboardPage, CreateGroupPage,
+    GroupDetailPage, ProfilePage
+  hooks/
+    useAuth, useGroups, usePayments
+  store/
+    authStore, groupStore
+  utils/
+    calculatePayment.ts
+    formatCurrency.ts
+    exportReport.ts
+  i18n/
+    en.json, mr.json, hi.json
+  service-worker.ts
+  manifest.json
+```
+
+---
+
+## Key Utility: `calculatePayment`
+
+```typescript
+export function calculatePayment(
+  A: number,   // base amount
+  r: number,   // interest rate as decimal (e.g. 0.01)
+  N: number,   // total months
+  m: number    // current month (1-indexed)
+): number {
+  if (m === 1 || m === N) return A;
+  return Math.round(A * (1 - r * (N - m)));
+}
+```
+
+---
+
+This PRD covers every screen, every validation, every business rule, and all data models needed to build the Bhishi Admin PWA from scratch. Hand this directly to Codex or any AI code generator — each section maps to a discrete component or route with no ambiguity.
